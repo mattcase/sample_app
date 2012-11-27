@@ -36,7 +36,6 @@ describe "Static pages" do
       let(:user) { FactoryGirl.create(:user) }
       before do
         FactoryGirl.create(:micropost, user: user, content: "Lorem ipsum")
-        FactoryGirl.create(:micropost, user: user, content: "Dolor sit amet")
         sign_in user
         visit root_path
       end
@@ -46,8 +45,24 @@ describe "Static pages" do
           page.should have_selector("li##{item.id}", text: item.content)
         end
       end
+
+      describe "sidebar with one micropost" do
+        it { should have_content('micropost') }
+        it { should_not have_content('microposts') }
+      end
+
+      describe "sidebar with two microposts" do
+        before do
+          FactoryGirl.create(:micropost, user: user, content: "Lorem ipsum")
+          FactoryGirl.create(:micropost, user: user, content: "ipsum lorem")
+          sign_in user
+          visit root_path
+        end
+        it { should have_content('microposts') }
+      end
     end
   end
+
 
   describe "Help page" do
     before { visit help_path }
