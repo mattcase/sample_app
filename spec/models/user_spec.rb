@@ -15,7 +15,7 @@ describe User do
   
 	before do
 		@user = User.new(name: "Example User", email: "user@example.com", 
-                 password: "foobar", password_confirmation: "foobar")
+                 password: "foobar1", password_confirmation: "foobar1")
 	end
 
 
@@ -27,14 +27,18 @@ describe User do
   it { should respond_to(:password) }
   it { should respond_to(:password_confirmation) }
   it { should respond_to(:remember_token) }
+  it { should respond_to(:admin) }
   it { should respond_to(:authenticate) }
   it { should respond_to(:microposts) }
   it { should respond_to(:feed) }
+  it { should respond_to(:relationships) }
+  it { should respond_to(:followed_users) }
+  it { should respond_to(:reverse_relationships) }
+  it { should respond_to(:followers) }
+  it { should respond_to(:following?) }
+  it { should respond_to(:follow!) }
+  it { should respond_to(:unfollow!) }
 
-  it { should be_valid }
-
-  it { should respond_to(:admin) }
-  it { should respond_to(:authenticate) }
 
   it { should be_valid }
   it { should_not be_admin }
@@ -172,10 +176,21 @@ describe User do
       let(:unfollowed_post) do
         FactoryGirl.create(:micropost, user: FactoryGirl.create(:user))
       end
+      let(:followed_user) { FactoryGirl.create(:user) }
+
+      before do
+        @user.follow!(followed_user)
+        3.times { followed_user.microposts.create!(content: "Lorem ipsum") }
+      end
 
       its(:feed) { should include(newer_micropost) }
       its(:feed) { should include(older_micropost) }
       its(:feed) { should_not include(unfollowed_post) }
+      its(:feed) do
+        followed_user.microposts.each do |micropost|
+          should include(micropost)
+        end
+      end
     end
   end
 end

@@ -35,7 +35,8 @@ describe "Static pages" do
     describe "for signed-in users" do
       let(:user) { FactoryGirl.create(:user) }
       before do
-        FactoryGirl.create(:micropost, user: user, content: "Lorem ipsum")
+        FactoryGirl.create(:micropost, user: user, content: "Lorem")
+        FactoryGirl.create(:micropost, user: user, content: "Ipsum")
         sign_in user
         visit root_path
       end
@@ -46,19 +47,28 @@ describe "Static pages" do
         end
       end
 
-      describe "sidebar with one micropost" do
-        it { should have_content('micropost') }
-        it { should_not have_content('microposts') }
+      describe "follower/following counts" do
+        let(:other_user) { FactoryGirl.create(:user) }
+        before do
+          other_user.follow!(user)
+          visit root_path
+        end
+
+        it { should have_link("0 following", href: following_user_path(user)) }
+        it { should have_link("1 followers", href: followers_user_path(user)) }
       end
 
       describe "sidebar with two microposts" do
+        it { should have_content('microposts') }
+      end
+
+      describe "sidebar with one microposts" do
         before do
-          FactoryGirl.create(:micropost, user: user, content: "Lorem ipsum")
-          FactoryGirl.create(:micropost, user: user, content: "ipsum lorem")
+          FactoryGirl.create(:micropost, user: user, content: "Lorem")
           sign_in user
           visit root_path
         end
-        it { should have_content('microposts') }
+        it { should have_content('micropost') }
       end
     end
   end
