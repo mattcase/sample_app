@@ -2,10 +2,7 @@
 <div class="row">
   <aside class="span4">
     <section>
-      <h1>
-        <%= gravatar_for @user %>
-        <%= @user.name %>
-      </h1>
+      <%= render 'shared/user_gravatar_name' %>
     </section>
     <section>
       <%= render 'shared/stats' %>
@@ -14,7 +11,7 @@
   <div class="span8">
     <%= render 'follow_form' if signed_in? %>
     <% if @user.microposts.any? %>
-      <h3>Microposts (<%= @user.microposts.count %>)</h3>
+      <h3><%= render 'shared/microposts_count' %></h3>
       <ol class="microposts">
         <%= render @microposts %>
       </ol>

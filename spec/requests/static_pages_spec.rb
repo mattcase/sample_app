@@ -47,7 +47,7 @@ describe "Static pages" do
         end
       end
 
-      describe "follower/following counts" do
+      describe "stats for one follower" do
         let(:other_user) { FactoryGirl.create(:user) }
         before do
           other_user.follow!(user)
@@ -58,17 +58,63 @@ describe "Static pages" do
         it { should have_link("1 followers", href: followers_user_path(user)) }
       end
 
-      describe "sidebar with two microposts" do
-        it { should have_content('microposts') }
-      end
-
-      describe "sidebar with one microposts" do
+      describe "stats for two followers" do
+        let(:other_user1) { FactoryGirl.create(:user) }
+        let(:other_user2) { FactoryGirl.create(:user) }
         before do
-          FactoryGirl.create(:micropost, user: user, content: "Lorem")
-          sign_in user
+          other_user1.follow!(user)
+          other_user2.follow!(user)
           visit root_path
         end
-        it { should have_content('micropost') }
+
+        it { should have_link("0 following", href: following_user_path(user)) }
+        it { should have_link("2 followers", href: followers_user_path(user)) }
+      end
+
+      describe "stats for following one" do
+        let(:other_user) { FactoryGirl.create(:user) }
+        before do
+          user.follow!(other_user)
+          visit root_path
+        end
+
+        it { should have_link("1 following", href: following_user_path(user)) }
+        it { should have_link("0 followers", href: followers_user_path(user)) }
+      end
+
+
+      describe "stats for following two" do
+        let(:other_user1) { FactoryGirl.create(:user) }
+        let(:other_user2) { FactoryGirl.create(:user) }
+        before do
+          user.follow!(other_user1)
+          user.follow!(other_user2)
+          visit root_path
+        end
+
+        it { should have_link("2 following", href: following_user_path(user)) }
+        it { should have_link("0 followers", href: followers_user_path(user)) }
+      end
+
+      describe "sidebar with two microposts" do
+        before do
+          FactoryGirl.create(:micropost, user: user1, content: "Lorem")
+          FactoryGirl.create(:micropost, user: user1, content: "Ipsum")
+          sign_in user1
+          visit root_path
+          it { should have_content('microposts') }
+          it { should_not have_content('micropost ') }
+        end
+      end
+
+      describe "sidebar with one micropost" do
+        before do
+          FactoryGirl.create(:micropost, user: user2, content: "Lorem")
+          sign_in user2
+          visit root_path
+          it { should have_content('micropost ') }
+          it { should_not have_content('microposts') }
+        end
       end
     end
   end

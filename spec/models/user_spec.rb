@@ -18,7 +18,6 @@ describe User do
                  password: "foobar1", password_confirmation: "foobar1")
 	end
 
-
   subject { @user }
 
   it { should respond_to(:name) }
@@ -190,6 +189,24 @@ describe User do
         followed_user.microposts.each do |micropost|
           should include(micropost)
         end
+      end
+    end
+
+    describe "relationships" do
+      let(:user2) { FactoryGirl.create(:user) }
+      before do
+        @user.follow!(user2)
+      end
+
+      it "should create relationship" do
+         relationships = @user.relationships
+         relationships.should_not be_empty
+      end
+
+      it "should destroy relationship" do
+        relationships = @user.relationships
+        @user.unfollow!(user2)
+        relationships.should be_empty
       end
     end
   end
